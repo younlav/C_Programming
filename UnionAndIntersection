@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <math.h>
+#include <limits.h>
+#define MAX_ELEMENTS 1000
+
+/* 배열 요소 입력받기 */
+void input_array(int arr[], int n) {
+	for (int i = 0; i < n; i++) {
+		scanf("%d", &arr[i]);
+	}
+}
+
+/* 버블 정렬 함수 (오름차순 정렬) */
+void bubbleSort(int *array, int size) {
+	for (int i = 0; i < size - 1; i++) {
+		for (int j = 0; j < size - i - 1; j++) {
+			if (array[j] > array[j + 1]) {
+				// 요소 교환
+				int temp = array[j];
+				array[j] = array[j + 1];
+				array[j + 1] = temp;
+			}
+		}
+	}
+}
+
+/* 배열 출력 함수
+ * => 형식 {1, 2, 3} 
+ */
+void printArray(int *array, int size) {
+	printf("{");
+	for (int i = 0; i < size; i++) {
+			if (i > 0) {
+					printf(",");  // 각 요소 사이에 쉼표를 추가
+			}
+			printf("%d", array[i]);  // 배열의 각 요소를 출력
+	}
+	printf("}\n");
+}
+
+//get_union 함수 : 합집합 구하기
+//한 배열을 교집합 배열에 넣기
+//나머지 배열의 요소와 비교하면서 중복되지 않도록 요소 입력
+//합집합 배열 정리하기
+//합집합 배열 포인터 리턴
+int *get_union(int arr1[], int arr2[], int n1, int n2, int *union_size) { //배열 두 개, 배열 각 사이즈, 합집합 사이즈
+	
+	static int my_union[MAX_ELEMENTS]; //합집합 배열 선언
+	int is_not_here;
+	
+	for (int i = 0; i < n1; i++) { //합집합 = 첫 번째 배열 요소 복사
+		my_union[i] = arr1[i];
+	}
+	*union_size = n1; //합집합 크기 = 첫번째 배열 크기
+	
+	for (int i = 0; i < n2; i++) {
+		is_not_here = 1;
+		for (int j = 0; j < n1; j++) {
+			if (arr2[i] == arr1[j]) {
+				is_not_here = 0;
+				break;
+			}
+		}
+		if (is_not_here) {
+			my_union[*union_size] = arr2[i];
+			(*union_size)++;
+		}
+	}
+	bubbleSort(my_union, *union_size);//정렬
+	return my_union; //합집합 포인터 리턴
+}
+
+//교집합 구하는 함수
+//초기 교집합 배열 요소 0개로 초기화
+//두 배열의 요소가 같은지 비교하기
+//같다면 이미 교집합 배열에 존재하는지 확인하기
+//두 배열의 요소가 같고, 교집합 배열에 존재하지 않다면 교집합에 추가하고 교집합 크기 증가.
+//교집합 정렬
+//교집합 배열 포인터 리턴
+int *get_intersection(int arr1[], int arr2[], int n1, int n2, int *intersection_size) {
+	static int my_intersection[MAX_ELEMENTS]; //교집합 저장 배열
+	int is_here;
+	*intersection_size = 0; //교집합 초기 크기 = 0
+	for (int i = 0; i < n1; i++) {
+		for (int j = 0; j < n2; j++) {
+			if (arr1[i] == arr2[j]) { //교집합 존재시
+				is_here = 0;
+				for (int k = 0; k < *intersection_size; k++) {
+					if (arr1[i] == my_intersection[k]) {//이미 교집합에 존재하는지 확인
+						is_here = 1;
+						break;
+					}
+				}
+				if (!is_here) {//교집합에 존재하지 않으면
+					my_intersection[*intersection_size] = arr1[i]; //교집합 배열에 추가
+					(*intersection_size)++; //교집합 크기 증가
+				}
+				break;
+			}
+		}
+	}
+	bubbleSort(my_intersection, *intersection_size); //교집합 정렬
+	return my_intersection; //교집합 return
+}
+
+int main() {
+	int n_a, n_b, union_size, intersection_size;
+	int A[MAX_ELEMENTS], B[MAX_ELEMENTS];
+	
+	//입력
+	scanf("%d", &n_a);
+	input_array(A, n_a);
+	
+	scanf("%d", &n_b);
+	input_array(B, n_b);
+	
+	//출력
+	int *my_union = get_union(A, B, n_a, n_b, &union_size);
+  printf("union: ");
+  printArray(my_union, union_size);
+
+	int *my_intersection = get_intersection(A, B, n_a, n_b, &intersection_size);
+	printf("intersection: ");
+	printArray(my_intersection, intersection_size);
+	
+	return 0;
+}
